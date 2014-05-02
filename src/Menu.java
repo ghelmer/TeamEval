@@ -146,7 +146,7 @@ public class Menu {
 		boolean done = false;
 		while (!done)
 		{
-			System.out.println("Reports: A)ll  T)eam  S)tudent  Q)uit");
+			System.out.println("Reports: A)ll  T)eam  S)tudent  M)issing  Q)uit");
 			String input = in.nextLine();
 			if (input.equalsIgnoreCase("A"))
 			{
@@ -271,6 +271,27 @@ public class Menu {
 						System.out.println();
 					}
 				}
+			}
+			else if (input.equalsIgnoreCase("M"))
+			{
+				int missingCount = 0;
+				Team[] teams = Team.getAllTeams(teamDB);
+				System.out.printf("%-32s %-24s\n",
+						"Team", "ID", "Missing");
+				for (Team t : teams)
+				{
+					Student[] members = t.getStudents(teamDB);
+					for (Student evaluating : members)
+					{
+						if (Eval.countEvaluating(teamDB, evaluating) == 0)
+						{
+							System.out.printf("%-32s %-16s %-24s\n",
+									t.getName(), evaluating.getId(), evaluating.getName(teamDB));
+							missingCount++;
+						}
+					}
+				}
+				System.out.printf("Total: %d missing\n\n", missingCount);
 			}
 			else if (input.equalsIgnoreCase("Q"))
 			{

@@ -41,6 +41,34 @@ public class Eval {
 	}
 	
 	/**
+	 * Count the number of evaluations the specified student has made.
+	 * @param db TeamDB connection
+	 * @param evaluating Student evaluating
+	 * @throws SQLException 
+	 */
+	public static int countEvaluating(TeamDB db, Student evaluatingStudent) throws SQLException
+	{
+		int count = 0;
+		PreparedStatement stat = db.getConnection().prepareStatement(
+				"SELECT COUNT(*) FROM Evals WHERE EvaluatingStudentId = ?");
+		try
+		{
+			stat.setString(1, evaluatingStudent.getId());
+			ResultSet rs = stat.executeQuery();
+			if (rs.next())
+			{
+				count = rs.getInt(1);
+			}
+		}
+		finally
+		{
+			stat.close();
+		}
+		return count;
+	}
+
+	
+	/**
 	 * Allow the user to update the scores for this evaluation object.
 	 * @param in Scanner from which to read
 	 * @param db TeamDB connection
