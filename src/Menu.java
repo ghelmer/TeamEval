@@ -115,7 +115,7 @@ public class Menu {
 							if (doEvalOf.length() == 0 || doEvalOf.equalsIgnoreCase("Y"))
 							{
 								Eval eval = new Eval(teamDB, t, e1, e2);
-								eval.enterScores(in, teamDB);
+								eval.enterScores(in, teamDB, false);
 								eval.updateScores(teamDB);
 							}
 						}
@@ -132,7 +132,7 @@ public class Menu {
 				for (Student e : members)
 				{
 					Eval eval = new Eval(teamDB, t, s, e);
-					eval.enterScores(in, teamDB);
+					eval.enterScores(in, teamDB, true);
 					eval.updateScores(teamDB);
 				}
 			}
@@ -199,36 +199,83 @@ public class Menu {
 				String teamName = prompt(in, "Enter team name");
 				Team t = new Team(teamName);
 				Student[] members = t.getStudents(teamDB);
-				for (Student e1 : members)
+				if (members.length == 0)
 				{
-					String doEvalFrom = prompt(in, "Enter data from " + e1.getName(teamDB) + "? (Y)");
-					if (doEvalFrom.length() == 0 || doEvalFrom.equalsIgnoreCase("Y"))
+					System.out.println("Team does not exist or has no members.");
+				}
+				else
+				{
+					System.out.printf("%-32s %-24s %-24s %-10s %-10s %-10s %-10s %-10s %-10s\n",
+							"Team", "Evaluated", "Evaluating", "Contrib", "Expect Quality", "Interacting",
+							"On Track", "Relevance", "Average");
+					int memberCount = 0;
+					for (Student e1 : members)
 					{
-						for (Student e2 : members)
+						double totalOfAverages = 0;
+						int evalCount = 0;
+						for (Student e2: members)
 						{
-							String doEvalOf = prompt(in, "Enter data to " + e2.getName(teamDB) + "? (Y)");
-							if (doEvalOf.length() == 0 || doEvalOf.equalsIgnoreCase("Y"))
+							Eval e = new Eval(teamDB, t, e2, e1);
+							if (e.exists())
 							{
-								Eval eval = new Eval(teamDB, t, e1, e2);
-								eval.enterScores(in, teamDB);
-								eval.updateScores(teamDB);
+								System.out.printf("%-32s %-24s %-24s %10.1f %10.1f %10.1f %10.1f %10.1f %10.1f\n",
+										t.getName(), e1.getName(teamDB), e2.getName(teamDB),
+										e.getContributing(), e.getExpectQuality(), e.getInteracting(),
+										e.getOnTrack(), e.getRelevance(), e.getAverage());
+								totalOfAverages += e.getAverage();
+								evalCount++;
+								memberCount++;
 							}
 						}
+						if (evalCount > 0)
+						{
+							System.out.printf("%-32s %s %.1f\n", t.getName(),
+									"Average for " + e1.getName(teamDB), totalOfAverages / evalCount);
+						}
+					}
+					if (memberCount > 0)
+					{
+						System.out.println();
 					}
 				}
 			}
 			else if (input.equalsIgnoreCase("S"))
 			{
-				String studentID = prompt(in, "Enter reporting student ID");
-				Student s = new Student(studentID);
-				Team t = Team.getTeamByStudent(teamDB, s);
-				Student[] members = t.getStudents(teamDB);
-				Arrays.sort(members);
-				for (Student e : members)
+				String studentID = prompt(in, "Enter evaluated student ID");
+				Student evaluated = new Student(studentID);
+				String evaluatedName = evaluated.getName(teamDB);
+				if (evaluatedName == null)
 				{
-					Eval eval = new Eval(teamDB, t, s, e);
-					eval.enterScores(in, teamDB);
-					eval.updateScores(teamDB);
+					System.out.println("Student not found.");
+				}
+				else
+				{
+					Team t = Team.getTeamByStudent(teamDB, evaluated);
+					Student[] members = t.getStudents(teamDB);
+					System.out.printf("%-32s %-24s %-24s %-10s %-10s %-10s %-10s %-10s %-10s\n",
+							"Team", "Evaluated", "Evaluating", "Contrib", "Expect Quality", "Interacting",
+							"On Track", "Relevance", "Average");
+					double totalOfAverages = 0;
+					int evalCount = 0;
+					for (Student evaluating : members)
+					{
+						Eval eval = new Eval(teamDB, t, evaluating, evaluated);
+						if (eval.exists())
+						{
+							System.out.printf("%-32s %-24s %-24s %10.1f %10.1f %10.1f %10.1f %10.1f %10.1f\n",
+									t.getName(), evaluatedName, evaluating.getName(teamDB),
+									eval.getContributing(), eval.getExpectQuality(), eval.getInteracting(),
+									eval.getOnTrack(), eval.getRelevance(), eval.getAverage());
+							totalOfAverages += eval.getAverage();
+							evalCount++;
+						}
+					}
+					if (evalCount > 0)
+					{
+						System.out.printf("%-32s %s %.1f\n", t.getName(),
+								"Average for " + evaluatedName, totalOfAverages / evalCount);
+						System.out.println();
+					}
 				}
 			}
 			else if (input.equalsIgnoreCase("Q"))

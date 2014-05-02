@@ -45,44 +45,61 @@ public class Eval {
 	 * @param db TeamDB connection
 	 * @throws SQLException
 	 */
-	public void enterScores(Scanner in, TeamDB db) throws SQLException
+	public void enterScores(Scanner in, TeamDB db, boolean enterIndividually) throws SQLException
 	{
 		System.out.println("Entering evaulation reported by " + evaluatingStudent.getName(db) + " for student " +
-				evaluatedStudent.getName(db) + ": (press <Enter> to keep current value)");
+				evaluatedStudent.getName(db) + ":");
 		String prompt;
 		String response;
 		
-		prompt = String.format("  Contributing score (%.1f)", contributing);
-		response = Menu.prompt(in, prompt).trim();
-		if (response.length() > 0)
+		if (enterIndividually)
 		{
-			contributing = Double.parseDouble(response);
+			System.out.println("  (Press <Enter> to keep current value)");
+			prompt = String.format("  Contributing score (%.1f)", contributing);
+			response = Menu.prompt(in, prompt).trim();
+			if (response.length() > 0)
+			{
+				contributing = Double.parseDouble(response);
+			}
+			prompt = String.format("  Interacting score (%.1f)", interacting);
+			response = Menu.prompt(in, prompt).trim();
+			if (response.length() > 0)
+			{
+				interacting = Double.parseDouble(response);
+			}		
+			prompt = String.format("  Keeping on track (%.1f)", onTrack);
+			response = Menu.prompt(in, prompt).trim();
+			if (response.length() > 0)
+			{
+				onTrack = Double.parseDouble(response);
+			}		
+			prompt = String.format("  Expecting quality (%.1f)", expectQuality);
+			response = Menu.prompt(in,  prompt).trim();
+			if (response.length() > 0)
+			{
+				expectQuality = Double.parseDouble(response);
+			}
+			prompt = String.format("  Relevance (%.1f)", relevance);
+			response = Menu.prompt(in, prompt).trim();
+			if (response.length() > 0)
+			{
+				relevance = Double.parseDouble(response);
+			}
 		}
-		prompt = String.format("  Interacting score (%.1f)", interacting);
-		response = Menu.prompt(in, prompt).trim();
-		if (response.length() > 0)
+		else
 		{
-			interacting = Double.parseDouble(response);
-		}		
-		prompt = String.format("  Keeping on track (%.1f)", onTrack);
-		response = Menu.prompt(in, prompt).trim();
-		if (response.length() > 0)
-		{
-			onTrack = Double.parseDouble(response);
-		}		
-		prompt = String.format("  Expecting quality (%.1f)", expectQuality);
-		response = Menu.prompt(in,  prompt).trim();
-		if (response.length() > 0)
-		{
-			expectQuality = Double.parseDouble(response);
+			// Enter five numbers as batch.
+			System.out.printf("  Current scores: Contrib %.1f, Interact %.1f, OnTrack %.1f, Quality %.1f, Relevance %.1f\n",
+					contributing, interacting, onTrack, expectQuality, relevance);
+			System.out.print("  Enter five new scores: ");
+			contributing = in.nextDouble();
+			interacting = in.nextDouble();
+			onTrack = in.nextDouble();
+			expectQuality = in.nextDouble();
+			relevance = in.nextDouble();
+			// Discard <Enter>
+			in.nextLine();
 		}
-		prompt = String.format("  Relevance (%.1f)", relevance);
-		response = Menu.prompt(in, prompt).trim();
-		if (response.length() > 0)
-		{
-			relevance = Double.parseDouble(response);
-		}		
-
 	}
 
 	/**
