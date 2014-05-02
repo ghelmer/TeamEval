@@ -2,6 +2,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 
@@ -45,12 +46,13 @@ public class Eval {
 	 * @param db TeamDB connection
 	 * @throws SQLException
 	 */
-	public void enterScores(Scanner in, TeamDB db, boolean enterIndividually) throws SQLException
+	public boolean enterScores(Scanner in, TeamDB db, boolean enterIndividually) throws SQLException
 	{
 		System.out.println("Entering evaulation reported by " + evaluatingStudent.getName(db) + " for student " +
 				evaluatedStudent.getName(db) + ":");
 		String prompt;
 		String response;
+		boolean changed = false;
 		
 		if (enterIndividually)
 		{
@@ -60,30 +62,35 @@ public class Eval {
 			if (response.length() > 0)
 			{
 				contributing = Double.parseDouble(response);
+				changed = true;
 			}
 			prompt = String.format("  Interacting score (%.1f)", interacting);
 			response = Menu.prompt(in, prompt).trim();
 			if (response.length() > 0)
 			{
 				interacting = Double.parseDouble(response);
+				changed = true;
 			}		
 			prompt = String.format("  Keeping on track (%.1f)", onTrack);
 			response = Menu.prompt(in, prompt).trim();
 			if (response.length() > 0)
 			{
 				onTrack = Double.parseDouble(response);
+				changed = true;
 			}		
 			prompt = String.format("  Expecting quality (%.1f)", expectQuality);
 			response = Menu.prompt(in,  prompt).trim();
 			if (response.length() > 0)
 			{
 				expectQuality = Double.parseDouble(response);
+				changed = true;
 			}
 			prompt = String.format("  Relevance (%.1f)", relevance);
 			response = Menu.prompt(in, prompt).trim();
 			if (response.length() > 0)
 			{
 				relevance = Double.parseDouble(response);
+				changed = true;
 			}
 		}
 		else
@@ -91,15 +98,42 @@ public class Eval {
 			// Enter five numbers as batch.
 			System.out.printf("  Current scores: Contrib %.1f, Interact %.1f, OnTrack %.1f, Quality %.1f, Relevance %.1f\n",
 					contributing, interacting, onTrack, expectQuality, relevance);
-			System.out.print("  Enter five new scores: ");
-			contributing = in.nextDouble();
-			interacting = in.nextDouble();
-			onTrack = in.nextDouble();
-			expectQuality = in.nextDouble();
-			relevance = in.nextDouble();
-			// Discard <Enter>
-			in.nextLine();
+			System.out.print("  Enter five new scores (or <Enter> for no change): ");
+			String line = in.nextLine();
+			if (line.length() > 0)
+			{
+				Scanner lineScanner = new Scanner(line);
+				try
+				{
+					double newContributing = lineScanner.nextDouble();
+					double newInteracting = lineScanner.nextDouble();
+					double newOnTrack = lineScanner.nextDouble();
+					double newExpectQuality = lineScanner.nextDouble();
+					double newRelevance = lineScanner.nextDouble();
+					lineScanner.close();
+					// Save changes.
+					changed = true;
+					contributing = newContributing;
+					interacting = newInteracting;
+					onTrack = newOnTrack;
+					expectQuality = newExpectQuality;
+					relevance = newRelevance;
+				}
+				catch (NoSuchElementException e)
+				{
+					System.out.println("  No change (emtpy or invalid entry).");
+				}
+				finally
+				{
+					lineScanner.close();
+				}
+			}
 		}
+		if (changed)
+		{
+			updateScores(db);
+		}
+		return changed;
 	}
 
 	/**
@@ -109,7 +143,7 @@ public class Eval {
 	 * @param db TeamDB connection
 	 * @throws SQLException
 	 */
-	public void updateScores(TeamDB db) throws SQLException
+	private void updateScores(TeamDB db) throws SQLException
 	{
 		PreparedStatement stat = db.getConnection().prepareStatement(
 				"UPDATE Evals SET Contributing = ?, Interacting = ?, OnTrack = ?, ExpectingQuality = ?, " +

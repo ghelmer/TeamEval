@@ -111,13 +111,8 @@ public class Menu {
 					{
 						for (Student e2 : members)
 						{
-							String doEvalOf = prompt(in, "Enter data to " + e2.getName(teamDB) + "? (Y)");
-							if (doEvalOf.length() == 0 || doEvalOf.equalsIgnoreCase("Y"))
-							{
-								Eval eval = new Eval(teamDB, t, e1, e2);
-								eval.enterScores(in, teamDB, false);
-								eval.updateScores(teamDB);
-							}
+							Eval eval = new Eval(teamDB, t, e1, e2);
+							eval.enterScores(in, teamDB, false);
 						}
 					}
 				}
@@ -133,7 +128,6 @@ public class Menu {
 				{
 					Eval eval = new Eval(teamDB, t, s, e);
 					eval.enterScores(in, teamDB, true);
-					eval.updateScores(teamDB);
 				}
 			}
 			else if (input.equalsIgnoreCase("Q"))
