@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Scanner;
+import java.util.TreeMap;
 
 
 public class Menu {
@@ -122,12 +123,19 @@ public class Menu {
 				String studentID = prompt(in, "Enter reporting student ID");
 				Student s = new Student(studentID);
 				Team t = Team.getTeamByStudent(teamDB, s);
-				Student[] members = t.getStudents(teamDB);
-				Arrays.sort(members);
-				for (Student e : members)
+				if (t == null)
 				{
-					Eval eval = new Eval(teamDB, t, s, e);
-					eval.enterScores(in, teamDB, true);
+					System.out.println("Student " + studentID + " not found in any team");
+				}
+				else
+				{
+					Student[] members = t.getStudents(teamDB);
+					Arrays.sort(members);
+					for (Student e : members)
+					{
+						Eval eval = new Eval(teamDB, t, s, e);
+						eval.enterScores(in, teamDB, true);
+					}
 				}
 			}
 			else if (input.equalsIgnoreCase("Q"))
@@ -274,7 +282,7 @@ public class Menu {
 			}
 			else if (input.equalsIgnoreCase("M"))
 			{
-				int missingCount = 0;
+				TreeMap<String, String> missing = new TreeMap<String, String>();
 				Team[] teams = Team.getAllTeams(teamDB);
 				System.out.printf("%-32s %-24s\n",
 						"Team", "ID", "Missing");
@@ -285,13 +293,17 @@ public class Menu {
 					{
 						if (Eval.countEvaluating(teamDB, evaluating) == 0)
 						{
-							System.out.printf("%-32s %-16s %-24s\n",
-									t.getName(), evaluating.getId(), evaluating.getName(teamDB));
-							missingCount++;
+							missing.put(evaluating.getId(),
+									String.format("%-32s %-16s %-24s",
+									t.getName(), evaluating.getId(), evaluating.getName(teamDB)));
 						}
 					}
 				}
-				System.out.printf("Total: %d missing\n\n", missingCount);
+				for (String key : missing.keySet())
+				{
+				    System.out.println(missing.get(key));
+				}
+				System.out.printf("Total: %d missing\n\n", missing.size());
 			}
 			else if (input.equalsIgnoreCase("Q"))
 			{
