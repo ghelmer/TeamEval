@@ -202,6 +202,7 @@ public class Student implements Comparable<Student> {
 	/**
 	 * Return a string representation of the Student.
 	 * @param db TeamDB connection
+	 * @return String representing the student
 	 */
 	public String toString(TeamDB db)
 	{
