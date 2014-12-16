@@ -154,7 +154,7 @@ public class Menu {
 		boolean done = false;
 		while (!done)
 		{
-			System.out.println("Reports: A)ll  T)eam  S)tudent  M)issing  Q)uit");
+			System.out.println("Reports: A)ll  T)eam  S)tudent  M)issing  L)ist Teams  Q)uit");
 			String input = in.nextLine();
 			if (input.equalsIgnoreCase("A"))
 			{
@@ -284,18 +284,19 @@ public class Menu {
 			{
 				TreeMap<String, String> missing = new TreeMap<String, String>();
 				Team[] teams = Team.getAllTeams(teamDB);
-				System.out.printf("%-32s %-24s\n",
-						"Team", "ID", "Missing");
+				System.out.printf("%-32s %-24s %-8s\n",
+						"Team", "ID", "Missing", "Num Eval");
 				for (Team t : teams)
 				{
 					Student[] members = t.getStudents(teamDB);
 					for (Student evaluating : members)
 					{
-						if (Eval.countEvaluating(teamDB, evaluating) == 0)
+						int numEvaluated = Eval.countEvaluating(teamDB, evaluating);
+						if (numEvaluated != members.length)
 						{
 							missing.put(evaluating.getId(),
-									String.format("%-32s %-16s %-24s",
-									t.getName(), evaluating.getId(), evaluating.getName(teamDB)));
+									String.format("%-32s %-16s %-24s %d",
+									t.getName(), evaluating.getId(), evaluating.getName(teamDB), numEvaluated));
 						}
 					}
 				}
@@ -304,6 +305,22 @@ public class Menu {
 				    System.out.println(missing.get(key));
 				}
 				System.out.printf("Total: %d missing\n\n", missing.size());
+			}
+			else if (input.equalsIgnoreCase("L"))
+			{
+				// SELECT TeamName, StudentName FROM teams, students WHERE Teams.StudentID = Students.StudentID ORDER BY TeamName, StudentName
+				System.out.printf("%-32s %-24s\n",
+						"Team", "Student");
+				Team[] teams = Team.getAllTeams(teamDB);
+				for (Team t : teams)
+				{
+					Student[] members = t.getStudents(teamDB);
+					for (Student s : members)
+					{
+						System.out.printf("%-32s %-24s\n",
+										t.getName(), s.getName(teamDB));
+					}
+				}
 			}
 			else if (input.equalsIgnoreCase("Q"))
 			{
