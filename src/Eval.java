@@ -7,7 +7,7 @@ import java.util.Scanner;
 
 
 public class Eval {
-	public static final double DEFAULT_SCORE = 3.0;
+	public static final double DEFAULT_SCORE = 5.0;
 	private boolean exists; // Record exists in Evals table
 	@SuppressWarnings("unused")
 	private Team team;
@@ -157,7 +157,7 @@ public class Eval {
 				}
 			}
 		}
-		if (changed)
+		if (changed || !exists)
 		{
 			updateScores(db);
 		}
