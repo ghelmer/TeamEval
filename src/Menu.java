@@ -154,7 +154,7 @@ public class Menu {
 		boolean done = false;
 		while (!done)
 		{
-			System.out.println("Reports: A)ll  T)eam  S)tudent  M)issing  L)ist Teams  Q)uit");
+			System.out.println("Reports: A)ll  T)eam  S)tudent  M)issing  L)ist Teams  s(U)mmary  Q)uit");
 			String input = in.nextLine();
 			if (input.equalsIgnoreCase("A"))
 			{
@@ -321,6 +321,11 @@ public class Menu {
 										t.getName(), s.getName(teamDB));
 					}
 				}
+			}
+			else if (input.equalsIgnoreCase("U"))
+			{
+				ReportTeamworkSummary rts = new ReportTeamworkSummary(teamDB);
+				rts.ExecuteReport(System.out);
 			}
 			else if (input.equalsIgnoreCase("Q"))
 			{
