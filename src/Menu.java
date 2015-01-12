@@ -308,19 +308,8 @@ public class Menu {
 			}
 			else if (input.equalsIgnoreCase("L"))
 			{
-				// SELECT TeamName, StudentName FROM teams, students WHERE Teams.StudentID = Students.StudentID ORDER BY TeamName, StudentName
-				System.out.printf("%-32s %-24s\n",
-						"Team", "Student");
-				Team[] teams = Team.getAllTeams(teamDB);
-				for (Team t : teams)
-				{
-					Student[] members = t.getStudents(teamDB);
-					for (Student s : members)
-					{
-						System.out.printf("%-32s %-24s\n",
-										t.getName(), s.getName(teamDB));
-					}
-				}
+				ReportTeamList rtl = new ReportTeamList(teamDB);
+				rtl.ExecuteReport(System.out);
 			}
 			else if (input.equalsIgnoreCase("U"))
 			{
