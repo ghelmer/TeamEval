@@ -21,7 +21,7 @@ public class ReportTeamworkSummary {
 	 * Prepare to run the Teamwork Summary report.
 	 * @param db Database connection for team data.
 	 */
-	ReportTeamworkSummary(TeamDB db)
+	public ReportTeamworkSummary(TeamDB db)
 	{
 		teamDB = db;
 	}
