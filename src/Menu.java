@@ -244,40 +244,8 @@ public class Menu {
 			{
 				String studentID = prompt(in, "Enter evaluated student ID");
 				Student evaluated = new Student(studentID);
-				String evaluatedName = evaluated.getName(teamDB);
-				if (evaluatedName == null)
-				{
-					System.out.println("Student not found.");
-				}
-				else
-				{
-					Team t = Team.getTeamByStudent(teamDB, evaluated);
-					Student[] members = t.getStudents(teamDB);
-					System.out.printf("%-32s %-24s %-24s %-10s %-10s %-10s %-10s %-10s %-10s\n",
-							"Team", "Evaluated", "Evaluating", "Contrib", "Expect Quality", "Interacting",
-							"On Track", "Relevance", "Average");
-					double totalOfAverages = 0;
-					int evalCount = 0;
-					for (Student evaluating : members)
-					{
-						Eval eval = new Eval(teamDB, t, evaluating, evaluated);
-						if (eval.exists())
-						{
-							System.out.printf("%-32s %-24s %-24s %10.1f %10.1f %10.1f %10.1f %10.1f %10.1f\n",
-									t.getName(), evaluatedName, evaluating.getName(teamDB),
-									eval.getContributing(), eval.getExpectQuality(), eval.getInteracting(),
-									eval.getOnTrack(), eval.getRelevance(), eval.getAverage());
-							totalOfAverages += eval.getAverage();
-							evalCount++;
-						}
-					}
-					if (evalCount > 0)
-					{
-						System.out.printf("%-32s %s %.1f\n", t.getName(),
-								"Average for " + evaluatedName, totalOfAverages / evalCount);
-						System.out.println();
-					}
-				}
+				ReportEvaluatedStudent res = new ReportEvaluatedStudent(teamDB, evaluated);
+				res.ExecuteReport(System.out);
 			}
 			else if (input.equalsIgnoreCase("M"))
 			{
