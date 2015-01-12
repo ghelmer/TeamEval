@@ -199,46 +199,8 @@ public class Menu {
 			{
 				String teamName = prompt(in, "Enter team name");
 				Team t = new Team(teamName);
-				Student[] members = t.getStudents(teamDB);
-				if (members.length == 0)
-				{
-					System.out.println("Team does not exist or has no members.");
-				}
-				else
-				{
-					System.out.printf("%-32s %-24s %-24s %-10s %-10s %-10s %-10s %-10s %-10s\n",
-							"Team", "Evaluated", "Evaluating", "Contrib", "Expect Quality", "Interacting",
-							"On Track", "Relevance", "Average");
-					int memberCount = 0;
-					for (Student e1 : members)
-					{
-						double totalOfAverages = 0;
-						int evalCount = 0;
-						for (Student e2: members)
-						{
-							Eval e = new Eval(teamDB, t, e2, e1);
-							if (e.exists())
-							{
-								System.out.printf("%-32s %-24s %-24s %10.1f %10.1f %10.1f %10.1f %10.1f %10.1f\n",
-										t.getName(), e1.getName(teamDB), e2.getName(teamDB),
-										e.getContributing(), e.getExpectQuality(), e.getInteracting(),
-										e.getOnTrack(), e.getRelevance(), e.getAverage());
-								totalOfAverages += e.getAverage();
-								evalCount++;
-								memberCount++;
-							}
-						}
-						if (evalCount > 0)
-						{
-							System.out.printf("%-32s %s %.1f\n", t.getName(),
-									"Average for " + e1.getName(teamDB), totalOfAverages / evalCount);
-						}
-					}
-					if (memberCount > 0)
-					{
-						System.out.println();
-					}
-				}
+				ReportTeamEvaluations rte = new ReportTeamEvaluations(teamDB, t);
+				rte.ExecuteReport(System.out);
 			}
 			else if (input.equalsIgnoreCase("S"))
 			{
