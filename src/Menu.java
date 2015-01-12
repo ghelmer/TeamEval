@@ -3,7 +3,6 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Scanner;
-import java.util.TreeMap;
 
 
 public class Menu {
@@ -282,29 +281,8 @@ public class Menu {
 			}
 			else if (input.equalsIgnoreCase("M"))
 			{
-				TreeMap<String, String> missing = new TreeMap<String, String>();
-				Team[] teams = Team.getAllTeams(teamDB);
-				System.out.printf("%-32s %-24s %-8s\n",
-						"Team", "ID", "Missing", "Num Eval");
-				for (Team t : teams)
-				{
-					Student[] members = t.getStudents(teamDB);
-					for (Student evaluating : members)
-					{
-						int numEvaluated = Eval.countEvaluating(teamDB, evaluating);
-						if (numEvaluated != members.length)
-						{
-							missing.put(evaluating.getId(),
-									String.format("%-32s %-16s %-24s %d",
-									t.getName(), evaluating.getId(), evaluating.getName(teamDB), numEvaluated));
-						}
-					}
-				}
-				for (String key : missing.keySet())
-				{
-				    System.out.println(missing.get(key));
-				}
-				System.out.printf("Total: %d missing\n\n", missing.size());
+				ReportMissingEvaluations rme = new ReportMissingEvaluations(teamDB);
+				rme.ExecuteReport(System.out);
 			}
 			else if (input.equalsIgnoreCase("L"))
 			{
