@@ -5,7 +5,11 @@ import java.sql.Statement;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
-
+/**
+ * Eval class: Record student evaluation data.
+ * @author ghelmer
+ *
+ */
 public class Eval {
 	public static final double DEFAULT_SCORE = 3.0;
 	private boolean exists; // Record exists in Evals table
