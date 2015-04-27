@@ -7,10 +7,14 @@ use strict;
 
 my $mailhost = 'mailin.iastate.edu';
 
+my $course = 'MIS307 Spring 2015';
+my $due_date = 'Friday, May 1 11:59PM';
 my $student_team_fn = '/Users/ghelmer/Documents/Classes/MIS307S15/Homeworks/Team Evaluations/students-teams.txt';
+my $prepared_dir = '/Users/ghelmer/Documents/Classes/MIS307S15/Homeworks/Team Evaluations/Prepared';
 
 my %team_by_id;
 my %fullname_by_id;
+my %filename_by_id;
 my %team_members_fullnames;
 my %teams;
 my %recip;
@@ -41,10 +45,9 @@ foreach my $key (sort {$a <=> $b} keys(%teams)) {
 
 foreach my $team (keys(%teams)) {
 	foreach my $id (@{$teams{$team}}) {
-		buildSpreadsheetForTeamMember($team, $id, $team_members_fullnames{$team});
+	    $filename_by_id{$id} = buildSpreadsheetForTeamMember($team, $id, $team_members_fullnames{$team});
 	}
 }
-exit 0;
 
 MIME::Lite->send('smtp', $mailhost, Timeout=>60);
 
@@ -54,39 +57,41 @@ while (!$done) {
     foreach my $key (sort {$a <=> $b} keys(%teams)) {
 	foreach my $i (@{$teams{$key}}) {
 	    next if $recip{$i};
-	    #print "cp TeamEval-${key}.xlsx TeamEval-${key}-${i}.xlsx\n";
-	    #system("cp TeamEval-${key}.xlsx TeamEval-${key}-${i}.xlsx");
+	    if (!defined($filename_by_id{$i})) {
+		print STDERR "No file for user ID ${i}!\n";
+		next;
+	    }
 	    my $msg = MIME::Lite->new(
 		From    => "ghelmer\@iastate.edu",
 		To      => "${i}\@iastate.edu",
 		CC      => "ghelmer\@iastate.edu",
-		Subject => "MIS307 Fall 2014 Final Project Team Evaluation for Team ${key} Member ${i}",
+		Subject => "${course} Final Project Team Evaluation for Team ${key} Member ${i}",
 		Type    =>'multipart/related'
 		);
 	    $msg->attach(
 		Type => 'text/html',
 		Data => "<body>\n" .
-		"Please find attached the Excel spreadsheet for MIS307 Team ${key}.\n" .
+		"Please find attached the Excel spreadsheet for ${course} Team ${key}.\n" .
 		"Please fill in your evaluation for each team member (including yourself)\n" .
-		"and email it back to ghelmer\@iastate.edu by\n" .
-		"<strong>11:59pm Friday, December 12.</strong>\n" .
+		"and upload it to the TeamEvaluation assignment on BlackBoard by\n" .
+		"<strong>${due_date}.</strong>\n" .
 		"<p/>\n" .
-		"<strong>Please do not change the name of the spreadsheet file, and if you\n" .
-		"edit it in Google Docs, please send the actual spreadsheet back to me\n" .
-		"(not just a link).</strong>\n" .
+		"<strong>Please do not change the name of the spreadsheet file</strong>.\n" .
+		"If you edit it in Google Docs, please download the spreadsheet to post\n" .
+		"to BlackBoard.\n" .
 		"<p/></body>\n",
 		);
 	    $msg->attach(
-		Type => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-		Id   => "TeamEval-${key}-${i}.xlsx",
-		Filename=> "TeamEval-${key}-${i}.xlsx",
-		Path => "/Users/ghelmer/Documents/Classes/MIS307F14/Homeworks/Team Evaluations/Sent/TeamEval-${key}.xlsx",
+		Type => 'application/vnd.ms-excel',
+		Id   => "${key}-${i}.xls",
+		Filename=> "${key}-${i}.xls",
+		Path => $filename_by_id{$i},
 		);
 	    my $sent = 0;
 	    # Catch unexpected termination during send.
 	    eval { $msg->send; };
 	    if ($@) {
-		print "Sending message to ${i} failed.\n";
+		print "Sending message to ${i} failed: $@\n";
 	    } else {
 		$sent = $msg->last_send_successful();
 	    }
@@ -111,9 +116,10 @@ sub buildSpreadsheetForTeamMember {
     my ($teamName, $id, $teamMemberNamesRef) = @_;
     my $row;
     my $col;
+    my $fn = "${prepared_dir}/${teamName}-${id}.xls";
 
     # Create a new Excel workbook
-    my $workbook = Spreadsheet::WriteExcel->new("${teamName}-${id}.xls");
+    my $workbook = Spreadsheet::WriteExcel->new($fn);
 
     # Add a worksheet
     my $worksheet = $workbook->add_worksheet();
@@ -121,7 +127,7 @@ sub buildSpreadsheetForTeamMember {
     $worksheet->set_column('A:A', 20);
     $worksheet->set_column('B:F', 25);
     $worksheet->set_column('G:G', 15);
-    $worksheet->set_row(1, 30);
+    $worksheet->set_row(1, 40);
     $worksheet->set_selection('B5');
 
     #  Add and define the heading format
@@ -129,15 +135,18 @@ sub buildSpreadsheetForTeamMember {
     my $header_format = $workbook->add_format(bold => 1, align => 'center', valign => 'top', text_wrap => 1);
     
     # Heading
-    $worksheet->merge_range('A1:G1', 'MIS307 Final Project Peer Evaluation', $heading_format);
+    $worksheet->merge_range('A1:G1', "${course} Final Project Peer Evaluation", $heading_format);
     #$worksheet->write('A1', "", $format);
 
     # Instructions
     my $instructions_format = $workbook->add_format(text_wrap => 1, valign => 'top', align => 'left');
-    $worksheet->merge_range('A2:I2', 'This self and peer evaluation asks about how you and each of your ' .
+    $worksheet->merge_range('A2:F2', 'This self and peer evaluation asks about how you and each of your ' .
 			    'teammates contributed to the team during the time period you are evaluating. For each way of '.
 			    'contributing, please read the behaviors that describe a "1", "3", and "5" rating. Then ' .
-			    'confidentially rate yourself and your teammates.', $instructions_format);								
+			    'confidentially rate yourself and your teammates. ' .
+			    'NOTE: Scores of all-5\'s for any team member will NOT be accepted unless ' .
+			    'suffucient justification is given at the bottom of the spreadsheet for ' .
+			    'such extraordinary effort.', $instructions_format);								
     
     $worksheet->write('A3', $id);
     my $categories_format = $workbook->add_format(bold => 1, align => 'center', text_wrap => 1);
@@ -217,5 +226,13 @@ sub buildSpreadsheetForTeamMember {
     $worksheet->write($row, 5, "* Missing basic qualifications needed to be a member of the team.\n" .
 		      "* Unable or unwilling to develop knowledge or skills to contribute to the team.\n" .
 		      "* Unable to perform any of the duties of the other team members.", $instructions_format);
+    $row++;
+    
+    $worksheet->write($row, 0, "Justification for all-5's scores:", $instructions_format);
+    my $just_format = $workbook->add_format(align => 'left', valign => 'top');
+    $worksheet->merge_range($row, 1, $row, 5, '', $just_format);
+    $row++;
+
     $workbook->close();
+    return $fn;
 }
