@@ -9,8 +9,16 @@ my $mailhost = 'mailin.iastate.edu';
 
 my $course = 'MIS307 Spring 2015';
 my $due_date = 'Friday, May 1 11:59PM';
-my $student_team_fn = '/Users/ghelmer/Documents/Classes/MIS307S15/Homeworks/Team Evaluations/students-teams.txt';
 my $prepared_dir = '/Users/ghelmer/Documents/Classes/MIS307S15/Homeworks/Team Evaluations/Prepared';
+
+my $student_team_fn;
+if (@ARGV > 0) {
+    $student_team_fn = shift(@ARGV);
+}
+if (length($student_team_fn) == 0) {
+    $student_team_fn = '/Users/ghelmer/Documents/Classes/MIS307S15/Homeworks/Team Evaluations/students-teams.txt';
+    print STDERR "Using default input file ${student_team_fn}\n";
+}
 
 my %team_by_id;
 my %fullname_by_id;
@@ -111,6 +119,8 @@ while (!$done) {
 	sleep(60);
     }
 }
+
+exit 0;
 
 sub buildSpreadsheetForTeamMember {
     my ($teamName, $id, $teamMemberNamesRef) = @_;
