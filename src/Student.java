@@ -45,7 +45,9 @@ public class Student implements Comparable<Student> {
 	
 	/**
 	 * Load all of the students from the input file into the Students table in the database.
-	 * Input file format is student ID and student name separated by \t. '#' comments are allowed.
+	 * Input file format is:
+	 * LastName\tFirstName\tID\tTeam
+	 * '#' comments are allowed.
 	 * @param db TeamDB connection
 	 * @param filename Input file containing student data
 	 * @throws FileNotFoundException
@@ -74,12 +76,12 @@ public class Student implements Comparable<Student> {
 					continue;
 				}
 				String[] tokens = line.split("\t");
-				if (tokens.length != 2)
+				if (tokens.length != 4)
 				{
-					throw new IllegalArgumentException("File " + filename + " Line " + lineNum + ": Two tokens expected, but " + tokens.length + " found");
+					throw new IllegalArgumentException("File " + filename + " Line " + lineNum + ": Four tokens expected, but " + tokens.length + " found");
 				}
-				Student s = new Student(tokens[0]);
-				s.setName(db, tokens[1]);
+				Student s = new Student(tokens[2]);
+				s.setName(db, tokens[0] + ", " + tokens[1]);
 			}
 		}
 		finally

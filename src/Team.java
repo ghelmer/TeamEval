@@ -46,8 +46,10 @@ public class Team {
 	}
 	
 	/**
-	 * Load all of the teams and their students from the input file. Format is
-	 * student ID and team name separated by \t. '#' comments are allowed.
+	 * Load all of the teams and their students from the input file.
+	 * Input file format is:
+	 * LastName\tFirstName\tID\tTeam
+	 * '#' comments are allowed.
 	 * @param db TeamDB connection
 	 * @param filename Name of file containing team member data.
 	 * @throws FileNotFoundException
@@ -76,12 +78,12 @@ public class Team {
 					continue;
 				}
 				String[] tokens = line.split("\t");
-				if (tokens.length != 2)
+				if (tokens.length != 4)
 				{
-					throw new IllegalArgumentException("File " + filename + " Line " + lineNum + ": Two tokens expected, but " + tokens.length + " found");
+					throw new IllegalArgumentException("File " + filename + " Line " + lineNum + ": Four tokens expected, but " + tokens.length + " found");
 				}
-				Team t = new Team(tokens[1]);
-				t.addStudent(db, tokens[0]);
+				Team t = new Team(tokens[3]);
+				t.addStudent(db, tokens[2]);
 			}
 		}
 		finally

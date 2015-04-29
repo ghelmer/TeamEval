@@ -47,7 +47,7 @@ public class Menu {
 		Scanner in = new Scanner(System.in);
 		while (!done)
 		{
-			System.out.println("I) Initialize database  S)tudents Load  T)eams Load  E)nter Data   R)eports  Q)uit");
+			System.out.println("I) Initialize database  L)oad Students and Teams  E)nter Data   R)eports  Q)uit");
 			String input = in.nextLine();
 			if (input.equalsIgnoreCase("I")) {
 				System.out.println("Enter 'YES' to remove all existing data: ");
@@ -61,14 +61,13 @@ public class Menu {
 				else
 					System.out.println("OK, existing data preserved");
 			}
-			else if (input.equalsIgnoreCase("S"))
+			else if (input.equalsIgnoreCase("L"))
 			{
-				String inputFn = prompt(in, "Enter name of file containing list of students");
+				System.out.println("Expected format for students + teams:");
+				System.out.println(" LastName FirstName UserID Team (separated by Tabs)");
+				System.out.println(" Lines beginning with '#' are ignored.\n");
+				String inputFn = prompt(in, "Enter name of file containing students and teams");
 				Student.loadTable(teamDB, inputFn);
-			}
-			else if (input.equalsIgnoreCase("T"))
-			{
-				String inputFn = prompt(in, "Enter name of file containing list of teams");
 				Team.loadTable(teamDB, inputFn);
 			}
 			else if (input.equalsIgnoreCase("E"))
