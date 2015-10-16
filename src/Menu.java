@@ -152,12 +152,26 @@ public class Menu {
 		boolean done = false;
 		while (!done)
 		{
-			System.out.println("Reports: A)ll  T)eam  S)tudent  M)issing  L)ist Teams  s(U)mmary  Q)uit");
+			System.out.println("Reports: A)ll  E)val Scores  T)eam  S)tudent  M)issing  L)ist Teams  s(U)mmary  Q)uit");
 			String input = in.nextLine();
 			if (input.equalsIgnoreCase("A"))
 			{
 				ReportAllEvaluations rae = new ReportAllEvaluations(teamDB);
 				rae.ExecuteReport(System.out);
+			}
+			if (input.equalsIgnoreCase("E"))
+			{
+				String multiplierStr = prompt(in, "Enter evaulation score multiplier (e.g, 2.0)");
+				if (multiplierStr.length() == 0)
+					multiplierStr = "1";
+				double multiplier = Double.parseDouble(multiplierStr);
+				ReportEvalScores res = new ReportEvalScores(teamDB, multiplier);
+				try {
+					res.ExecuteReport(System.out);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 			if (input.equalsIgnoreCase("T"))
 			{
