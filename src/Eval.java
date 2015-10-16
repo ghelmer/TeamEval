@@ -261,6 +261,10 @@ public class Eval {
 		}
 	}
 	
+	/**
+	 * Return the exists flag for this evaluation record.
+	 * @return True if this evaluation record exists.
+	 */
 	public boolean exists()
 	{
 		return exists;
