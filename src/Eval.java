@@ -25,6 +25,7 @@ public class Eval {
 	
 	/**
 	 * Initialize the Evals table in the database.
+	 * @param db Connection to the TeamDB database.
 	 */
 	public static void initializeTable(TeamDB db) throws SQLException
 	{
