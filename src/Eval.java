@@ -23,6 +23,9 @@ public class Eval {
 	private double expectQuality;
 	private double relevance;
 	
+	/**
+	 * Initialize the Evals table in the database.
+	 */
 	public static void initializeTable(TeamDB db) throws SQLException
 	{
 		Statement stat = db.getConnection().createStatement();
