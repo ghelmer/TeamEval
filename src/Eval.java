@@ -5,7 +5,11 @@ import java.sql.Statement;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
-
+/**
+ * Eval class: Record student evaluation data.
+ * @author ghelmer
+ *
+ */
 public class Eval {
 	public static final double DEFAULT_SCORE = 5.0;
 	private boolean exists; // Record exists in Evals table
@@ -19,6 +23,10 @@ public class Eval {
 	private double expectQuality;
 	private double relevance;
 	
+	/**
+	 * Initialize the Evals table in the database.
+	 * @param db Connection to the TeamDB database.
+	 */
 	public static void initializeTable(TeamDB db) throws SQLException
 	{
 		Statement stat = db.getConnection().createStatement();
@@ -253,6 +261,10 @@ public class Eval {
 		}
 	}
 	
+	/**
+	 * Return the exists flag for this evaluation record.
+	 * @return True if this evaluation record exists.
+	 */
 	public boolean exists()
 	{
 		return exists;

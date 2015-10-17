@@ -204,6 +204,7 @@ public class Student implements Comparable<Student> {
 	/**
 	 * Return a string representation of the Student.
 	 * @param db TeamDB connection
+	 * @return String representing the student
 	 */
 	public String toString(TeamDB db)
 	{
@@ -219,6 +220,12 @@ public class Student implements Comparable<Student> {
 		return "Student ID: " + studentId + " Student Name: " + name;		
 	}
 
+	/**
+	 * Compare this student object to another.
+	 * @return less than 0: this student is less than the other
+	 * 			greater than 0: this student is greater than the other
+	 * 			0: this student is equal to the other
+	 */
 	public int compareTo(Student other) {
 		try
 		{
