@@ -155,7 +155,7 @@ sub buildSpreadsheetForTeamMember {
 			    'contributing, please read the behaviors that describe a "1", "3", and "5" rating. Then ' .
 			    'confidentially rate yourself and your teammates. ' .
 			    'NOTE: Scores of all-5\'s for any team member will NOT be accepted unless ' .
-			    'suffucient justification is given at the bottom of the spreadsheet for ' .
+			    'sufficient justification is given at the bottom of the spreadsheet for ' .
 			    'such extraordinary effort.', $instructions_format);								
     
     $worksheet->write('A3', $id);
