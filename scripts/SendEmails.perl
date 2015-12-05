@@ -7,16 +7,16 @@ use strict;
 
 my $mailhost = 'mailin.iastate.edu';
 
-my $course = 'MIS307 Spring 2015';
-my $due_date = 'Friday, May 1 11:59PM';
-my $prepared_dir = '/Users/ghelmer/Documents/Classes/MIS307S15/Homeworks/Team Evaluations/Prepared';
+my $course = 'MIS307 Fall 2015';
+my $due_date = 'Friday, Dec 11 11:59PM';
+my $prepared_dir = '/Users/ghelmer/Documents/Classes/MIS307F15/Homeworks/Team Evaluations/Prepared';
 
 my $student_team_fn;
 if (@ARGV > 0) {
     $student_team_fn = shift(@ARGV);
 }
 if (length($student_team_fn) == 0) {
-    $student_team_fn = '/Users/ghelmer/Documents/Classes/MIS307S15/Homeworks/Team Evaluations/students-teams.txt';
+    $student_team_fn = '/Users/ghelmer/Documents/Classes/MIS307F15/Homeworks/Team Evaluations/students-teams.txt';
     print STDERR "Using default input file ${student_team_fn}\n";
 }
 
@@ -81,12 +81,12 @@ while (!$done) {
 		Data => "<body>\n" .
 		"Please find attached the Excel spreadsheet for ${course} Team ${key}.\n" .
 		"Please fill in your evaluation for each team member (including yourself)\n" .
-		"and upload it to the TeamEvaluation assignment on BlackBoard by\n" .
+		"and email it to <a href=\"mailto:ghelmer\@iastate.edu\">ghelmer\@iastate.edu</a> by\n" .
 		"<strong>${due_date}.</strong>\n" .
 		"<p/>\n" .
 		"<strong>Please do not change the name of the spreadsheet file</strong>.\n" .
-		"If you edit it in Google Docs, please download the spreadsheet to post\n" .
-		"to BlackBoard.\n" .
+		"If you edit it in Google Docs, please download the spreadsheet before\n" .
+		"mailing it.\n" .
 		"<p/></body>\n",
 		);
 	    $msg->attach(
