@@ -6,6 +6,7 @@ import java.util.Scanner;
 
 
 public class Menu {
+	private static final boolean individualEntry = false;
 	private TeamDB teamDB;
 	public static void main(String[] args) {
 		try
@@ -111,7 +112,7 @@ public class Menu {
 						for (Student e2 : members)
 						{
 							Eval eval = new Eval(teamDB, t, e1, e2);
-							eval.enterScores(in, teamDB, false);
+							eval.enterScores(in, teamDB, individualEntry);
 						}
 					}
 				}
@@ -132,7 +133,7 @@ public class Menu {
 					for (Student e : members)
 					{
 						Eval eval = new Eval(teamDB, t, s, e);
-						eval.enterScores(in, teamDB, true);
+						eval.enterScores(in, teamDB, individualEntry);
 					}
 				}
 			}
