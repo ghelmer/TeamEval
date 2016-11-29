@@ -33,7 +33,7 @@ public class ReportEvalScores {
 	{
 		TreeMap<String, String> evalScores = new TreeMap<String, String>();
 		Team[] teams = Team.getAllTeams(teamDB);
-		out.printf("%-32s %-24s %-8s\n", "Team", "ID", "EvalScore");
+		out.printf("%-32s %-24s %-32s %-8s\n", "Team", "ID", "Name", "EvalScore");
 		for (Team t : teams)
 		{
 			Student[] members = t.getStudents(teamDB);
@@ -52,8 +52,8 @@ public class ReportEvalScores {
 				}
 				if (evalCount > 0)
 				{
-					evalScores.put(e1.getName(teamDB), String.format("%-32s %-24s %8.1f", t.getName(),
-							 e1.getName(teamDB), multiplier * (totalOfAverages / evalCount)));
+					evalScores.put(e1.getName(teamDB), String.format("%-32s %-24s %-32s %8.1f", t.getName(),
+							 e1.getId(), e1.getName(teamDB), multiplier * (totalOfAverages / evalCount)));
 				}
 			}
 		}
