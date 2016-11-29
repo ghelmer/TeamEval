@@ -153,8 +153,9 @@ sub buildSpreadsheetForTeamMember {
     my $instructions_format = $workbook->add_format(text_wrap => 1, valign => 'top', align => 'left');
     $worksheet->merge_range('A2:F2', 'This self and peer evaluation asks about how you and each of your ' .
 			    'teammates contributed to the team during the time period you are evaluating. For each way of '.
-			    'contributing, please read the behaviors that describe a "1", "3", and "5" rating. Then ' .
-			    'confidentially rate yourself and your teammates. ' .
+			    'contributing, please read the behaviors that describe a "1", "3", and "5" rating. (You may ' .
+			    'use values 2 and 4 as well, and 0 for extreme circumstances). Then confidentially rate yourself '.
+			    'and your teammates. ' .
 			    'NOTE: Scores of all-5\'s for any team member will NOT be accepted unless ' .
 			    'sufficient justification is given at the bottom of the spreadsheet for ' .
 			    'such extraordinary effort.', $instructions_format);								
