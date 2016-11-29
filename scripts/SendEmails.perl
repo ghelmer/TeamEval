@@ -7,16 +7,17 @@ use strict;
 
 my $mailhost = 'mailin.iastate.edu';
 
-my $course = 'MIS307 Spring 2016';
-my $due_date = 'Friday, Apr 29 11:59PM';
-my $prepared_dir = '/Users/ghelmer/Documents/Classes/MIS307S16/Homeworks/Team Evaluations/Prepared';
+my $course = 'MIS307 Fall 2016';
+my $due_date = 'Friday, Dec 9 11:59PM';
+my $base_dir = '/Users/ghelmer/Documents/Classes/MIS307F16/Homeworks/Team Evaluations';
+my $prepared_dir = $base_dir . '/Prepared';
 
 my $student_team_fn;
 if (@ARGV > 0) {
     $student_team_fn = shift(@ARGV);
 }
 if (length($student_team_fn) == 0) {
-    $student_team_fn = '/Users/ghelmer/Documents/Classes/MIS307S16/Homeworks/Team Evaluations/students-teams.txt';
+    $student_team_fn = $base_dir . '/students-teams.txt';
     print STDERR "Using default input file ${student_team_fn}\n";
 }
 
