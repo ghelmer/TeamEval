@@ -94,8 +94,12 @@ while (!$done) {
 		charset      => 'US-ASCII'},
 						 body_str => "<body>\n" .
 						 "Please find attached the Excel spreadsheet for ${course} Team ${key}.\n" .
-						 "Please fill in your evaluation for each team member (including yourself)\n" .
-						 "and email it to <a href=\"mailto:ghelmer\@iastate.edu\">ghelmer\@iastate.edu</a> by\n" .
+						 "Please fill in your evaluation for each team member (including yourself). " .
+						 "Note that team evaluation scores of all '5' for any individual must be supported " .
+						 "by a rationale at the bottom of the spreadsheet, or the spreadsheet will not be " .
+						 "accepted.<p/>\n" .
+						 "Please email the completed spreadsheet to " .
+						 "<a href=\"mailto:ghelmer\@iastate.edu\">ghelmer\@iastate.edu</a> by\n" .
 						 "<strong>${due_date}.</strong>\n" .
 						 "<p/>\n" .
 						 "<strong>Please do not change the name of the spreadsheet file</strong>.\n" .
