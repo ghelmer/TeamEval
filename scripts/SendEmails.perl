@@ -1,11 +1,25 @@
 #!/usr/bin/perl
 
 use Data::Dumper;
-use MIME::Lite;
+use IO::All;
+use Email::MIME;
+use Email::Sender::Simple qw(sendmail);
+use Email::Sender::Transport::SMTP;
 use Spreadsheet::WriteExcel;
+use Term::ReadKey;
+use Try::Tiny;
 use strict;
 
-my $mailhost = 'mailin.iastate.edu';
+my $mailhost = 'smtp.office365.com'; # Was: 'mailin.iastate.edu';
+my $smtp_port = 587;
+print "Enter SMTP username for ${mailhost}: ";
+my $smtp_user = <STDIN>;
+chomp $smtp_user;
+print "Enter SMTP password: ";
+ReadMode('noecho');
+my $smtp_pass = <STDIN>;
+chomp $smtp_pass;
+ReadMode(0);
 
 my $course = 'MIS307 Fall 2016';
 my $due_date = 'Friday, Dec 9 11:59PM';
@@ -58,7 +72,9 @@ foreach my $team (keys(%teams)) {
 	}
 }
 
-MIME::Lite->send('smtp', $mailhost, Timeout=>60);
+# MIME::Lite->send('smtp', $mailhost, Timeout=>60, AuthUser=>$smtp_user, AuthPass=>$smtp_pass, Port=>$smtp_port);
+my $transport = Email::Sender::Transport::SMTP->new({host=>$mailhost, port=>$smtp_port, ssl=>'starttls',
+		sasl_username=>$smtp_user, sasl_password=>$smtp_pass, debug => 0});
 
 my $done = 0;
 while (!$done) {
@@ -70,54 +86,51 @@ while (!$done) {
 		print STDERR "No file for user ID ${i}!\n";
 		next;
 	    }
-	    my $msg = MIME::Lite->new(
-		From    => "ghelmer\@iastate.edu",
-		To      => "${i}\@iastate.edu",
-		CC      => "ghelmer\@iastate.edu",
-		Subject => "${course} Final Project Team Evaluation for Team ${key} Member ${i}",
-		Type    =>'multipart/related'
-		);
-	    $msg->attach(
-		Type => 'text/html',
-		Data => "<body>\n" .
-		"Please find attached the Excel spreadsheet for ${course} Team ${key}.\n" .
-		"Please fill in your evaluation for each team member (including yourself)\n" .
-		"and email it to <a href=\"mailto:ghelmer\@iastate.edu\">ghelmer\@iastate.edu</a> by\n" .
-		"<strong>${due_date}.</strong>\n" .
-		"<p/>\n" .
-		"<strong>Please do not change the name of the spreadsheet file</strong>.\n" .
-		"If you edit it in Google Docs, please download the spreadsheet before\n" .
-		"mailing it.\n" .
-		"<p/></body>\n",
-		);
-	    $msg->attach(
-		Type => 'application/vnd.ms-excel',
-		Id   => "${key}-${i}.xls",
-		Filename=> "${key}-${i}.xls",
-		Path => $filename_by_id{$i},
-		);
-	    my $sent = 0;
-	    # Catch unexpected termination during send.
-	    eval { $msg->send; };
-	    if ($@) {
-		print "Sending message to ${i} failed: $@\n";
-	    } else {
-		$sent = $msg->last_send_successful();
-	    }
-	    if (!$sent) {
-		print "Sending message to ${i} was unsuccessful.\n";
-		$retry++;
-	    } else {
+	    my @msg_body;
+	    push(@msg_body, Email::MIME->create(attributes=>{
+		content_type => 'text/html',
+		#disposition  => 'attachment',
+		encoding     => 'quoted-printable',
+		charset      => 'US-ASCII'},
+						 body_str => "<body>\n" .
+						 "Please find attached the Excel spreadsheet for ${course} Team ${key}.\n" .
+						 "Please fill in your evaluation for each team member (including yourself)\n" .
+						 "and email it to <a href=\"mailto:ghelmer\@iastate.edu\">ghelmer\@iastate.edu</a> by\n" .
+						 "<strong>${due_date}.</strong>\n" .
+						 "<p/>\n" .
+						 "<strong>Please do not change the name of the spreadsheet file</strong>.\n" .
+						 "If you edit it in Google Docs, please download the spreadsheet before\n" .
+						 "mailing it.\n" .
+						 "<p/></body>\n"));
+	    my @msg_attachments;
+	    push(@msg_attachments, Email::MIME->create(attributes=>{
+		content_type => 'application/vnd.ms-excel',
+		name         => "${key}-${i}.xls",
+		filename     => "${key}-${i}.xls"},
+						 body => io($filename_by_id{$i})->binary->all));
+	    my $email = Email::MIME->create(
+		header_str => [
+		    From    => "ghelmer\@iastate.edu",
+		    To      => "${i}\@iastate.edu",
+		    CC      => "ghelmer\@iastate.edu",
+		    Subject => "${course} Final Project Team Evaluation for Team ${key} Member ${i}"],
+		parts => [@msg_body, @msg_attachments]);
+
+	    try {
+	    	sendmail($email, { transport => $transport });
 		print "Sent message to ${i}.\n";
 		$recip{$i} = 1;
+	    } catch {
+		print "Sending message to ${i} failed: $_\n";
+		$retry++;
 	    }
 	}
-    }
-    if ($retry == 0) {
-	$done = 1;
-    } else {
-	print "${retry} receipients left. Waiting one minute.\n";
-	sleep(60);
+	if ($retry == 0) {
+	    $done = 1;
+	} else {
+	    print "${retry} receipients left. Waiting one minute.\n";
+	    sleep(60);
+	}
     }
 }
 
