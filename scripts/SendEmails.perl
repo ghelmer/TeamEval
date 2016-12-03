@@ -110,7 +110,8 @@ while (!$done) {
 	    push(@msg_attachments, Email::MIME->create(attributes=>{
 		content_type => 'application/vnd.ms-excel',
 		name         => "${key}-${i}.xls",
-		filename     => "${key}-${i}.xls"},
+		filename     => "${key}-${i}.xls",
+		encoding     => 'base64'},
 						 body => io($filename_by_id{$i})->binary->all));
 	    my $email = Email::MIME->create(
 		header_str => [
