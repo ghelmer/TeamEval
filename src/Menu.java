@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Scanner;
+import java.util.TreeMap;
 
 
 public class Menu {
@@ -96,8 +97,64 @@ public class Menu {
 		boolean done = false;
 		while (!done)
 		{
-			System.out.println("Enter Data: T)eam Data  S)tudent Data  Q)uit");
+			System.out.println("Enter Data: L)oad Files  T)eam Data  S)tudent Data  Q)uit");
 			String input = in.nextLine();
+			if (input.equalsIgnoreCase("L"))
+			{
+				System.out.println("Enter path to directory containing spreadsheet files: ");
+				String inputPath = in.nextLine();
+				try
+				{
+					ExtractEvalsFromFiles extractor = new ExtractEvalsFromFiles(inputPath);
+					TreeMap<String, double[]> results = new TreeMap<>();
+					TreeMap<String, String> exceptions = new TreeMap<>();
+					extractor.processFiles(results, exceptions);
+					for (String key : results.keySet())
+					{
+						String[] parts = key.split(":");
+						Student s = new Student(parts[0]);
+						Team t = Team.getTeamByStudent(teamDB, s);
+						if (t == null)
+						{
+							System.out.println("Student " + parts[0] + " not found in any team");
+						}
+						else
+						{
+							Student[] members = t.getStudents(teamDB);
+							Arrays.sort(members);
+							boolean found = false;
+							for (Student e : members)
+							{
+								if (e.getName(teamDB).equalsIgnoreCase(parts[1]))
+								{
+									System.out.println("Entering scores for " + key);
+									Eval eval = new Eval(teamDB, t, s, e);
+									eval.setScores(results.get(key));
+									eval.updateScores(teamDB);
+									found = true;
+									break;
+								}
+							}
+							if (!found)
+							{
+								System.err.println("Could not find team for " + key);
+							}
+						}
+					}
+					if (exceptions.size() > 0)
+					{
+						System.err.println("Errors encountered in these files:");
+						for (String key : exceptions.keySet())
+						{
+							System.err.println(exceptions.get(key));
+						}
+					}
+				}
+				catch (IOException e)
+				{
+					System.err.println("Failed to construct ExtractEvalsFromFiles: " + e.getMessage());
+				}
+			}
 			if (input.equalsIgnoreCase("T"))
 			{
 				String teamName = prompt(in, "Enter team name");
