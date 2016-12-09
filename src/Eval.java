@@ -179,7 +179,7 @@ public class Eval {
 	 * @param db TeamDB connection
 	 * @throws SQLException
 	 */
-	private void updateScores(TeamDB db) throws SQLException
+	public void updateScores(TeamDB db) throws SQLException
 	{
 		PreparedStatement stat = db.getConnection().prepareStatement(
 				"UPDATE Evals SET Contributing = ?, Interacting = ?, OnTrack = ?, ExpectingQuality = ?, " +
@@ -270,6 +270,40 @@ public class Eval {
 		return exists;
 	}
 	
+	/**
+	 * Set the five scores from the given array.
+	 * @param values
+	 */
+	public void setScores(double[] values)
+	{
+		// Contributing, Interacting, OnTrack, ExpectingQuality, Relevance
+		contributing = values[0];
+		interacting = values[1];
+		onTrack = values[2];
+		expectQuality = values[3];
+		relevance = values[4];
+	}
+	public void setContributing(double x)
+	{
+		contributing = x;
+	}
+	public void setInteracting(double x)
+	{
+		interacting = x;
+	}
+	public void setOnTrack(double x)
+	{
+		onTrack = x;
+	}
+	public void getExpectQuality(double x)
+	{
+		expectQuality = x;
+	}
+	public void setRelevance(double x)
+	{
+		relevance = x;
+	}
+
 	public double getContributing()
 	{
 		return contributing;
