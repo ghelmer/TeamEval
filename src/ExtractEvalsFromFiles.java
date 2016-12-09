@@ -1,9 +1,11 @@
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
@@ -18,35 +20,42 @@ import org.xml.sax.SAXException;
  */
 public class ExtractEvalsFromFiles
 {
-	public static void main(String[] args) throws IOException, SAXException, TikaException
+	private File[] inputFiles;
+	
+	/**
+	 * Construct a new extractor for the given path (single file or directory of files).
+	 * @param inputPath - File or directory of input files
+	 * @throws IOException on error
+	 */
+	public ExtractEvalsFromFiles(String inputPath) throws IOException
 	{
-		if (args.length < 1)
+		File inputFile = new File(inputPath);
+		if (!inputFile.exists())
 		{
-			System.err.println("Usage: java -classpath .:tika-app-1.7.jar ExtractEvalsFromFiles input-directory [output-filename]");
+			throw new IOException("Path " + inputPath + " does not exist");
 		}
-		PrintStream output;
-		boolean doClose = false;
-		ArrayList<File> errorFiles = new ArrayList<File>();
-		if (args.length > 1)
-		{
-			output = new PrintStream(args[1]);
-			doClose = true;
-		}
-		else
-		{
-			output = System.out;
-		}
-		File[] inputFiles;
-		File inputFile = new File(args[0]);
-		if (inputFile.isDirectory())
-		{
-			inputFiles = inputFile.listFiles();
-		}
-		else
+		if (inputFile.isFile())
 		{
 			inputFiles = new File[1];
 			inputFiles[0] = inputFile;
 		}
+		else
+		{
+			inputFiles = inputFile.listFiles();
+		}
+	}
+	
+	/**
+	 * Process the input files. Store successful input results from files
+	 * into the results map indexed by reporting student ID + ':' + evaluated student name. 
+	 * Store exceptions into the exceptions map indexed by filename.
+	 * @param results - indexed by reporting student ID + ':' + evaluated student name
+	 * @param exceptions - indexed by input filename
+	 */
+	public void processFiles(TreeMap<String, double[]> results, TreeMap<String, String> exceptions)
+	{
+		Pattern reportingStudentIDPattern = Pattern.compile("\t([a-z][0-9a-z]+)\tCategories");
+		Pattern reportedScores = Pattern.compile("\t([A-Za-z., ]+)\t(\\d+)\t(\\d+)\t(\\d+)\t(\\d+)\t(\\d+)\t\\d+");
 		for (File f : inputFiles)
 		{
 			if (f.getName().startsWith("."))
@@ -58,86 +67,84 @@ public class ExtractEvalsFromFiles
 			{
 				String result = getText(f);
 			   	ArrayList<String> lineList = new ArrayList<String>(Arrays.asList(result.split("[\\r\\n]+")));
-			   	int i = 0;
-			   	while (i < lineList.size())
+			   	String reportingStudentID = "";
+			   	for (int i = 0; i < lineList.size(); i++)
 			   	{
-			   		if (lineList.get(i).matches("\\s*This self and peer eval.*"))
+			   		if (reportingStudentID.length() == 0)
 			   		{
-			   			lineList.remove(i);
-			   		}
-			   		else if (lineList.get(i).matches("\\s*Scoring Guide.*"))
-			   		{
-			   			boolean found = false;
-			   			int j = i + 1;
-			   			while (j < lineList.size() && !found)
+				   		// Do we have the reporting student yet?
+			   			Matcher matcher = reportingStudentIDPattern.matcher(lineList.get(i));
+			   			if (matcher.find())
 			   			{
-			   				// Look for the line ending the scoring guide.
-			   				if (lineList.get(j).matches("\\s*Justification.*"))
-			   				{
-			   					found = true;
-			   				}
-			   				else
-			   				{
-			   					j++;
-			   				}
-			   			}
-			   			if (found)
-			   			{
-			   				for (int count = 0; count < j - i; count++)
-			   				{
-			   					lineList.remove(i);
-			   				}
-			   			}
-			   			else
-			   			{
-			   				i++;
+			   				reportingStudentID = matcher.group(1);
 			   			}
 			   		}
 			   		else
 			   		{
-			   			i++;
+			   			// Look for scores.
+			   			Matcher matcher = reportedScores.matcher(lineList.get(i));
+			   			if (matcher.find())
+			   			{
+			   				double[] scores = new double[5];
+			   				String evaluatedStudent = matcher.group(1);
+			   				for (int j = 0; j < 5; j++)
+			   				{
+			   					scores[j] = Double.parseDouble(matcher.group(2 + j));
+			   				}
+			   				results.put(reportingStudentID + ":" + evaluatedStudent, scores);
+			   			}
 			   		}
 			   	}
-				output.println(f.getName());
-				for (String s : lineList)
-				{
-					output.println(s);
-				}
 			}
 			catch (TikaException e)
 			{
-				output.println(f.getName());
-				output.print("TikaException: " + e.getMessage());
-				errorFiles.add(f);
+				exceptions.put(f.getName(), "TikaException: " + e.getMessage());
 			}
 			catch (SAXException e)
 			{
-				output.println(f.getName());
-				output.print("SAXException: " + e.getMessage());
-				errorFiles.add(f);
+				exceptions.put(f.getName(), "SaxException: " + e.getMessage());
 			}
 			catch (IOException e)
 			{
-				output.println(f.getName());
-				output.print("IOException: " + e.getMessage());
-				errorFiles.add(f);
-			}
-		}
-		if (doClose) {
-			output.close();
-		}
-		if (errorFiles.size() > 0)
-		{
-			System.err.println("Errors encountered in these files:");
-			for (File f : errorFiles)
-			{
-				System.err.println(f.getPath());
+				exceptions.put(f.getName(), "IOException: " + e.getMessage());
 			}
 		}
 	}
 
+	public static void main(String[] args) throws IOException, SAXException, TikaException
+	{
+		if (args.length < 1)
+		{
+			System.err.println("Usage: java -classpath .:tika-app-1.13.jar ExtractEvalsFromFiles input-directory");
+		}
+		ExtractEvalsFromFiles extractor = new ExtractEvalsFromFiles(args[0]);
+		TreeMap<String, double[]> results = new TreeMap<>();
+		TreeMap<String, String> exceptions = new TreeMap<>();
+		extractor.processFiles(results, exceptions);
+		for (String key : results.keySet())
+		{
+			System.out.println(key + "\t" + Arrays.toString(results.get(key)));
+		}
+		if (exceptions.size() > 0)
+		{
+			System.err.println("Errors encountered in these files:");
+			for (String key : exceptions.keySet())
+			{
+				System.err.println(exceptions.get(key));
+			}
+		}
+	}
+
+	/**
+	 * Extract text from the specified file and return the text as a String.
+	 * @param inputFile - file to read
+	 * @return the captured text
+	 * @throws IOException
+	 * @throws SAXException
+	 * @throws TikaException
+	 */
 	public static String getText(File inputFile) throws IOException, SAXException, TikaException {
-		if (!inputFile.exists() || !inputFile.isFile()) {
+		if (!inputFile.exists() && !inputFile.isFile()) {
 			throw new IllegalArgumentException(inputFile.toString() + " is not a valid file");
 		}
 		FileInputStream stream = new FileInputStream(inputFile);
