@@ -146,8 +146,9 @@ public class Menu {
 						System.err.println("Errors encountered in these files:");
 						for (String key : exceptions.keySet())
 						{
-							System.err.println(exceptions.get(key));
+							System.err.println(key + ": " + exceptions.get(key));
 						}
+						System.err.flush();
 					}
 				}
 				catch (IOException e)
