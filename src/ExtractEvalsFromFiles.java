@@ -55,7 +55,7 @@ public class ExtractEvalsFromFiles
 	public void processFiles(TreeMap<String, double[]> results, TreeMap<String, String> exceptions)
 	{
 		Pattern reportingStudentIDPattern = Pattern.compile("\t([a-z][0-9a-z]+)\tCategories");
-		Pattern reportedScores = Pattern.compile("\t([A-Za-z., ]+)\t(\\d+)\t(\\d+)\t(\\d+)\t(\\d+)\t(\\d+)\t\\d+");
+		Pattern reportedScores = Pattern.compile("\t([A-Za-z., -]+)\t([0-9.]+)\t([0-9.]+)\t([0-9.]+)\t([0-9.]+)\t([0-9.]+)\t[0-9.]+");
 		for (File f : inputFiles)
 		{
 			if (f.getName().startsWith("."))
@@ -63,6 +63,7 @@ public class ExtractEvalsFromFiles
 				// Skip hidden files.
 				continue;
 			}
+			boolean gotResults = false;
 			try
 			{
 				String result = getText(f);
@@ -92,9 +93,14 @@ public class ExtractEvalsFromFiles
 			   					scores[j] = Double.parseDouble(matcher.group(2 + j));
 			   				}
 			   				results.put(reportingStudentID + ":" + evaluatedStudent, scores);
+			   				gotResults = true;
 			   			}
 			   		}
 			   	}
+				if (!gotResults)
+				{
+					exceptions.put(f.getName(), "No results obtained from file");
+				}
 			}
 			catch (TikaException e)
 			{
