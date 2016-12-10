@@ -28,7 +28,7 @@ public class ReportMissingEvaluations {
 	{
 		TreeMap<String, String> missing = new TreeMap<String, String>();
 		Team[] teams = Team.getAllTeams(teamDB);
-		out.printf("%-32s %-24s %-8s\n", "Team", "ID", "Missing", "Num Eval");
+		out.printf("%-32s %-16s %-24s %-8s\n", "Team", "ID", "Missing", "Num Eval");
 		for (Team t : teams)
 		{
 			Student[] members = t.getStudents(teamDB);
@@ -38,7 +38,7 @@ public class ReportMissingEvaluations {
 				if (numEvaluated != members.length)
 				{
 					missing.put(evaluating.getId(),
-							String.format("%-32s %-16s %-24s %d",
+							String.format("%-32s %-16s %-24s %8d",
 							t.getName(), evaluating.getId(), evaluating.getName(teamDB), numEvaluated));
 				}
 			}
