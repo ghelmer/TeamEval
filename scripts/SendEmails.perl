@@ -21,9 +21,9 @@ my $smtp_pass = <STDIN>;
 chomp $smtp_pass;
 ReadMode(0);
 
-my $course = 'MIS307 Fall 2016';
-my $due_date = 'Friday, Dec 9 11:59PM';
-my $base_dir = '/Users/ghelmer/Documents/Classes/MIS307F16/Homeworks/Team Evaluations';
+my $course = 'MIS307 Spring 2017';
+my $due_date = 'Friday, Apr 28 11:59PM';
+my $base_dir = '/Users/ghelmer/Documents/Classes/MIS307S17/Homeworks/Team Evaluations';
 my $prepared_dir = $base_dir . '/Prepared';
 
 my $student_team_fn;
@@ -118,7 +118,7 @@ while (!$done) {
 		    From    => "ghelmer\@iastate.edu",
 		    To      => "${i}\@iastate.edu",
 		    CC      => "ghelmer\@iastate.edu",
-		    Subject => "${course} Final Project Team Evaluation for Team ${key} Member ${i}"],
+		    Subject => "${course} Term Project Team Evaluation for Team ${key} Member ${i}"],
 		parts => [@msg_body, @msg_attachments]);
 
 	    try {
@@ -164,7 +164,7 @@ sub buildSpreadsheetForTeamMember {
     my $header_format = $workbook->add_format(bold => 1, align => 'center', valign => 'top', text_wrap => 1);
     
     # Heading
-    $worksheet->merge_range('A1:G1', "${course} Final Project Peer Evaluation", $heading_format);
+    $worksheet->merge_range('A1:G1', "${course} Term Project Peer Evaluation", $heading_format);
     #$worksheet->write('A1', "", $format);
 
     # Instructions
