@@ -55,7 +55,7 @@ public class ExtractEvalsFromFiles
 	public void processFiles(TreeMap<String, double[]> results, TreeMap<String, String> exceptions)
 	{
 		Pattern reportingStudentIDPattern = Pattern.compile("\t([a-z][0-9a-z]+)\tCategories");
-		Pattern reportedScores = Pattern.compile("\t([A-Za-z., -]+)\t([0-9.]+)\t([0-9.]+)\t([0-9.]+)\t([0-9.]+)\t([0-9.]+)\t[0-9.]+");
+		Pattern reportedScores = Pattern.compile("\t([A-Za-z][A-Za-z., '-]+)\t([0-9.]+)\t([0-9.]+)\t([0-9.]+)\t([0-9.]+)\t([0-9.]+)\t[0-9.]+");
 		for (File f : inputFiles)
 		{
 			if (f.getName().startsWith("."))
