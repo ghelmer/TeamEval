@@ -87,7 +87,11 @@ public class ReportTeamworkSummary {
 	 */
 	private static void updateRating(int[][] ratingCounts, int ratingCategory, int rating)
 	{
-		if (rating >= 1 && rating <= 5)
+		if (rating == 0)
+		{
+			ratingCounts[ratingCategory][0]++;
+		}
+		else if (rating >= 1 && rating <= 5)
 		{
 			ratingCounts[ratingCategory][rating-1]++;
 		}
