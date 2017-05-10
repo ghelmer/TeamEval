@@ -1,5 +1,10 @@
+package reports;
 import java.io.PrintStream;
 import java.sql.SQLException;
+
+import dal.Student;
+import dal.Team;
+import dal.TeamDB;
 
 /**
  * Run the Team List report.

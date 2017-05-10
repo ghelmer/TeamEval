@@ -1,7 +1,13 @@
+package reports;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.sql.SQLException;
 import java.util.TreeMap;
+
+import dal.Eval;
+import dal.Student;
+import dal.Team;
+import dal.TeamDB;
 
 /**
  * Run the Evaluation Scores report.
